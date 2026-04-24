@@ -1,24 +1,30 @@
 # Narrative Focus
 
-> **中文摘要**：检测和修正技术教程、面试解析文章中的"叙述重心错位"——当响亮但表层的实现细节抢了真正决定行为的架构性机制的风头时，读者的心智模型会被锚定在错误的位置，导致后续学习不断回流重构。通过"替换实验"判定每个细节的角色（架构性 / 传输性 / 配置性），在前处理阶段标注收集物，在后处理阶段检测并精准修正。后处理包含权威性校验步骤，确保重心迁移不引入技术语义错误。兼容 OpenClaw / CodeBuddy 原生 Skill 格式，也适用于 Claude Code、Cursor 等 AI coding agent。
+**[English](README.md)** | [中文](README.zh-CN.md)
+
+> Narrative weight misalignment is the most insidious structural problem in technical writing. It's not "poorly written" — it's "wrongly weighted." Familiar but superficial implementation details steal the spotlight from the architectural mechanisms that actually determine behavior. The reader's mental model gets anchored to the wrong position, and subsequent learning keeps circling back to reconstruct what should have been clear from the start.
 
 An AgentSkill for detecting and fixing **Narrative Weight Misalignment** in technical tutorials and interview prep articles. Compatible with OpenClaw, CodeBuddy, and any AI coding agent.
 
 ## The Problem
 
-Technical tutorials often give disproportionate emphasis to implementation details that are familiar or have catchy names (e.g., "event delegation", "virtual DOM"), while the mechanisms that actually determine user-observable behavior get buried as footnotes. This causes readers to anchor their mental model on the wrong concept — then spend hours reconstructing it when they hit real-world problems.
+Technical tutorials have a pervasive, almost universally unaddressed problem: **the narrative weight of concepts doesn't match their actual importance.**
 
-**Example**: A React event system article titled one of its "Three Core Mechanisms" as "Event Delegation" with a full chapter — but event delegation is just the signal delivery pipe. The actual core is Fiber-tree traversal, which was compressed into a few lines in a flow chart. The reader walks away thinking "event delegation" is the key concept, then gets confused when debugging `stopPropagation()` behavior in production.
+An article on the React event system devotes an entire chapter to "Event Delegation" as one of its "Three Core Mechanisms" — but event delegation is just the signal delivery pipe. The actual core, Fiber-tree traversal, gets compressed into a few lines in a flow chart. The reader walks away thinking "event delegation" is the key concept, then gets confused when debugging `stopPropagation()` behavior in production.
 
-## Scope
+This is not an isolated case. We tested 8 cross-domain articles (Kubernetes, PostgreSQL, Transformer, Rust, TLS, MySQL, Linux CFS, Git) and found **narrative weight misalignment in every single one**, with a misalignment rate of 75.8%. The universality of this problem is beyond doubt.
 
-| In scope | Out of scope |
-|----------|-------------|
-| Technical tutorials, deep-dive explainers | API reference docs |
-| Interview prep articles | Opinion pieces, news/changelog |
-| Framework comparison articles | Non-technical content |
+## Core Idea: Narrative Focus Is a Precondition
 
-This skill answers one question: **"Does the narrative weight of each concept match its actual role?"** It does not check for missing content, theme boundaries, or genre consistency.
+Most technical articles don't suffer from insufficient content — they suffer from confused weight distribution.
+
+A misweighted article lets readers recite concepts but prevents them from building causal understanding. Their time goes to structural confusion — "why does this concept get its own section?" — rather than pursuing genuinely meaningful deeper questions.
+
+Conversely, **when narrative weight is correct, it far more efficiently triggers the reader's positive chain of inquiry and learning.** Readers naturally generate the next question along the correct causal chain — questions that can be filled by other articles, documentation, or practice, or by asking the agent for specifics. No single article needs to exhaust all content.
+
+**Getting readers to the main battlefield of knowledge faster, instead of tripping over poorly designed thresholds, is a higher-priority design goal than content completeness in technical writing.**
+
+Narrative focus is a precondition for content quality. Calibrate weight first, then pursue depth.
 
 ## How It Works
 
@@ -32,7 +38,19 @@ For any technical detail, ask: **If the proposition conveyed by this detail were
 
 **Critical: Proposition identification before substitution.** The same technical detail can convey different propositions depending on context. You must identify what proposition the detail is actually conveying in the article before applying the substitution test — do not substitute the literal term/implementation, substitute the proposition.
 
+For example, "JSX is `React.createElement()` syntax sugar" — if the article is actually asserting "JSX has no independent runtime semantics," replacing this proposition would fundamentally change the reader's understanding of React → Architectural. But if the article is merely saying "JSX compiles to the specific function `createElement`," swapping it for `jsx()` doesn't affect reader behavior → Transport. The correct judgment depends on what the article is actually asserting.
+
 **Proposition granularity.** The same detail can be read at different granularities (e.g., "positional encoding provides location info" vs "sine/cosine formulas implement position encoding"). The correct granularity depends on what the article actually elaborates. See `references/proposition-granularity-guide.md` for the decision flowchart and worked examples.
+
+## Scope
+
+| In scope | Out of scope |
+|----------|-------------|
+| Technical tutorials, deep-dive explainers | API reference docs |
+| Interview prep articles | Opinion pieces, news/changelog |
+| Framework comparison articles | Non-technical content |
+
+This skill answers one question: **"Does the narrative weight of each concept match its actual role?"** It does not check for missing content, theme boundaries, or genre consistency.
 
 ### Two Modes
 
@@ -111,21 +129,39 @@ The agent will scan the article, identify misalignments, fix them — upgrading 
 ```
 narrative-focus/
 ├── SKILL.md                              # Core concepts + mode routing
-├── README.md
+├── README.md                             # English
+├── README.zh-CN.md                       # 中文版
 ├── LICENSE
 ├── references/
 │   ├── pre-processing.md                 # SOP: collection & labeling phase
 │   ├── post-processing.md                # SOP: detection, correction & verification
 │   └── proposition-granularity-guide.md  # How to read propositions at the right depth
-└── examples/
-    ├── react-event-system/               # Classic misalignment + granularity analysis
-    │   ├── before.md
-    │   └── after.md
-    ├── docker-orchestration/             # Title-content mismatch
-    │   ├── before.md
-    │   └── after.md
-    └── v8-gc/                            # Borderline case + scope boundary
-        └── before.md
+├── examples/
+│   ├── react-event-system/               # Classic misalignment + granularity analysis
+│   │   ├── before.md
+│   │   └── after.md
+│   ├── docker-orchestration/             # Title-content mismatch
+│   │   ├── before.md
+│   │   └── after.md
+│   └── v8-gc/                            # Borderline case + scope boundary
+│       └── before.md
+└── experiments/                           # 3-round validation experiments
+    ├── README.md                          #   Experiment overview
+    ├── final-evaluation.md                #   Final comprehensive evaluation
+    ├── round1-cross-domain/               #   R1: 5 synthetic articles, cross-domain robustness
+    │   ├── articles/                      #     K8s, PostgreSQL, Transformer, Rust, TLS
+    │   ├── detection-results/             #     Skill detection reports (5)
+    │   └── summary.md
+    ├── round2-controlled/                 #   R2: 3 real articles, Skill vs no-Skill control
+    │   ├── articles/                      #     MySQL, Linux CFS, Git
+    │   ├── no-skill-control-results/      #     No-Skill control (same model, no Skill input) (3)
+    │   ├── skill-detection-results/       #     Skill detection (same model + Skill input) (3)
+    │   └── summary.md
+    └── round3-correction/                 #   R3: correction pipeline verification
+        ├── corrected-articles/            #     Post-correction articles (2)
+        ├── correction-reports/            #     Correction + verification reports (2)
+        ├── re-evaluation/                 #     No-Skill control re-evaluation (2)
+        └── summary.md
 ```
 
 ## License

@@ -1,7 +1,7 @@
 ---
 name: narrative-focus
 description: |
-  Narrative Focus — detect and fix "narrative weight misalignment" in technical documentation.
+  Narrative Focus — detect and fix "narrative weight misalignment" in technical tutorials and interview prep articles.
   Trigger when users ask to review technical articles for concept weight misalignment, fix narrative focus,
   or label technical details by role during research/collection to prevent misalignment.
   Also triggers on: "检测叙述重心", "叙述重心错位", "概念权重", "角色标注", "按叙述重心规范收集",
@@ -12,7 +12,11 @@ description: |
 
 ## Purpose
 
-Prevent **narrative weight misalignment** in technical documentation — where a technical detail's narrative prominence doesn't match its actual role in the reader's mental model. Typical symptom: a transport-layer detail gets treated as a core architectural concept because it has a catchy or familiar name, causing readers to anchor their mental model on the wrong concept.
+Prevent **narrative weight misalignment** in technical tutorials and interview prep articles — where a technical detail's narrative prominence doesn't match its actual role in the reader's mental model. Typical symptom: a transport-layer detail gets treated as a core architectural concept because it has a catchy or familiar name, causing readers to anchor their mental model on the wrong concept.
+
+**Target article types**: Technical tutorials, deep-dive explainers, interview preparation articles, framework comparison articles — any technical content where concepts have clear causal hierarchies (architectural mechanisms vs transport details) and the reader is building a mental model.
+
+**Not applicable**: API reference docs, opinion pieces, news/changelog, non-technical content.
 
 This skill uses the AgentSkill-compatible SKILL.md format and works natively with OpenClaw and CodeBuddy. For other AI coding agents (Claude Code, Cursor, etc.), load SKILL.md and the appropriate reference file as context.
 
@@ -32,6 +36,8 @@ Example:
 - "JSX is `React.createElement()` syntax sugar" — the **proposition** is "JSX has no independent runtime semantics, it's just JS function calls." Substituting this proposition (e.g., with "JSX is a template with its own directive system") would fundamentally change user behavior → Architectural.
 - If the same sentence were read as the proposition "JSX compiles to the specific function `createElement`" — substituting this (e.g., with `jsx()`) would not change user behavior → Transport.
 - The correct reading depends on what the article is **actually asserting**, not what term appears in the sentence.
+
+**Proposition granularity.** The same detail can be read at different granularities — e.g., "positional encoding provides location info" (conceptual) vs "sine/cosine formulas implement position encoding" (mathematical). The correct granularity depends on **what the article actually elaborates**. If the article spends a full section on the math, the proposition is at the math level. If it only mentions the math in passing, the proposition is at the conceptual level. See `references/proposition-granularity-guide.md` for detailed guidance and examples.
 
 ### Three-Layer Role Labels
 

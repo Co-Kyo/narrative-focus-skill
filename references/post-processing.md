@@ -2,7 +2,7 @@
 
 ## Applicable Scenarios
 
-Detecting and surgically fixing narrative weight misalignment in a completed technical article/document.
+Detecting and surgically fixing narrative weight misalignment in completed technical tutorials, deep-dive articles, and interview prep content.
 
 ## Detection Workflow
 
@@ -24,6 +24,8 @@ For each core concept from Step 1, answer:
 Common pitfall: substituting the literal term/implementation instead of the proposition. For example:
 - "JSX is `React.createElement()` syntax sugar" — the proposition is "JSX has no independent semantics, it's just JS function calls" (Architectural), NOT "JSX compiles to the specific function `createElement`" (Transport).
 - The distinction hinges on what the article is asserting, not what technical term appears on the surface.
+
+**Proposition granularity**: When a concept is elaborated at different depths, read the proposition at the level the article actually elaborates. If the article devotes a full section to the math, the proposition is at the math level. If it only mentions the concept in passing, read at the conceptual level. See `references/proposition-granularity-guide.md` for the decision flowchart and worked examples.
 
 ### Step 3: Apply Substitution Test to Each Proposition
 
@@ -127,8 +129,9 @@ Execute only when detection finds ❌ items.
 | Detection finds no issues, but misalignment exists | Substitution test not applied strictly, or obscured Architectural concepts were missed | Focus on details "compressed into flow steps" — they're the easiest to overlook |
 | Detection finds issues, but not narrative weight misalignment | Confusing "narrative weight misalignment" with other writing issues (unclear logic, incorrect code) | Return to substitution test — only focus on "role vs. narrative weight" mismatches |
 | Architectural concepts incorrectly flagged as Transport | Substitution test applied to the literal term instead of the proposition conveyed in context | Re-execute Step 2 (proposition identification): identify what the article is actually asserting, then re-apply substitution test to the proposition, not the surface term |
-| Article quality degrades after correction | Changed parts that shouldn't be changed (deleted correct code examples, altered correct facts) | Strictly follow "change narrative weight only, not facts"; in second-pass detection, verify factual completeness of modified sections |
+| Article quality degrades after correction | Changed parts that shouldn't have been changed (deleted correct code examples, altered correct facts) | Strictly follow "change narrative weight only, not facts"; in second-pass detection, verify factual completeness of modified sections |
 | Post-processing loop never terminates | Correction introduces new misalignment (e.g., upgrading A caused B to be over-downgraded) | If second pass has only 1-2 borderline items, use human judgment on whether further adjustment is worthwhile — avoid over-iteration |
 | Authoritative verification finds errors | Weight migration accidentally altered a technical claim (e.g., "just a signal method" oversimplified a behavior) | Report to user with source citations — do not auto-correct; the fix may require re-examining the proposition identification in Step 2 |
 | Authoritative verification finds no sources | The topic is niche or too new for authoritative documentation | Flag as unverified rather than verified; the user should review manually |
 | Authoritative verification disagrees with the article's framing but not its facts | The article's emphasis differs from official docs (e.g., official docs highlight SyntheticEvent, article highlights Fiber traversal) | This is expected — narrative weight realignment intentionally diverges from common framing; only flag if the technical claim itself is wrong, not just the emphasis |
+| Proposition granularity causes different substitution results | Same detail read at conceptual level → Architectural, read at implementation level → Configurable | Use the article's own elaboration depth as the tiebreaker: if the article elaborates the math, read at math level; if it only mentions the concept, read at conceptual level. See `references/proposition-granularity-guide.md` |

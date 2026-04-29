@@ -55,7 +55,12 @@ Use when the user is doing deep research / knowledge collection and wants to lab
 
 **Entry recognition**: User mentions "按叙述重心规范收集", "角色标注", "前处理", "collect with narrative focus rules", "role labeling", etc.
 
-**Workflow**: Load `references/pre-processing.md` and follow its SOP.
+**Key steps** (full SOP in `references/pre-processing.md`):
+1. Collect technical details
+2. For each detail: identify proposition → apply substitution test → assign role label (A/T/C)
+3. ⚠️ **User Checkpoint**: present labeling table, wait for confirmation
+4. Flag potential misalignment risks (familiarity-weighting, length-induced, implicit-completion)
+5. Output structured collection with labels
 
 ### Mode 2: Post-processing (detection + correction)
 
@@ -63,7 +68,13 @@ Use when the user wants to detect and fix narrative weight misalignment in a com
 
 **Entry recognition**: User mentions "检测叙述重心", "叙述重心错位", "审稿重心", "后处理", "detect narrative focus", "narrative weight misalignment", etc.
 
-**Workflow**: Load `references/post-processing.md` and follow its SOP.
+**Key steps** (full SOP in `references/post-processing.md`):
+1. Extract core concepts from the article (section titles, independently elaborated concepts)
+2. For each concept: identify proposition → apply substitution test → determine role (A/T/C)
+3. Compare narrative weight vs. role → output detection report (✅/❌)
+4. ⚠️ **User Checkpoint**: present detection report, ask whether to proceed to correction
+5. If correction approved: downgrade Transport, upgrade Architectural, keep facts unchanged
+6. Second-pass detection → authoritative verification against official docs/MDN
 
 ## Notes
 
@@ -71,3 +82,6 @@ Use when the user wants to detect and fix narrative weight misalignment in a com
 - Pre-processing aims to "label collected items to prevent misalignment later"; post-processing aims to "detect misalignment in existing articles and surgically fix it"
 - Post-processing correction only does local weight migration — it does not rewrite the entire article. It downgrades transport concepts and upgrades architectural concepts without altering correct facts
 - Post-processing includes an **authoritative verification** step after correction: modified sections are checked against authoritative sources (official docs, team blogs, MDN) to ensure weight migration did not introduce technical semantic errors. If errors are found, they are reported to the user rather than auto-corrected
+- **Reference files**: `references/pre-processing.md` and `references/post-processing.md` contain the detailed SOPs for each mode. `references/proposition-granularity-guide.md` helps with proposition identification at the right depth
+- **Examples**: `examples/` contains before/after articles demonstrating misalignment detection and correction
+- **Experiments**: `experiments/` contains real-world article detection results (6 articles from cnblogs/CSDN/Vue.js blog/V8 blog). This is evidence of the skill's effectiveness across languages and domains, not needed for daily usage

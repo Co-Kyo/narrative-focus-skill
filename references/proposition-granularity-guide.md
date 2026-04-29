@@ -95,9 +95,11 @@ Here the granularity difference **changes the result**. The article's own treatm
 
 ## When Granularity Ambiguity Persists
 
-If you genuinely cannot determine the article's intended granularity:
+If you genuinely cannot determine the article's intended granularity, apply these criteria **in order**:
 
 1. **Check the title/abstract**: If they promise "deep dive" or "internals", lean toward implementation level. If they promise "understanding" or "explained", lean toward conceptual level.
 2. **Check the audience**: Beginner-oriented → conceptual level. Expert-oriented → implementation level.
-3. **Default to conceptual**: When in doubt, read at the conceptual level. It's safer to over-detect misalignment than to miss it.
-4. **Flag for human review**: Mark the item as `⚠️ Granularity Ambiguous` in the detection report and present both readings.
+3. **Check the time spent**: Count the sentences/paragraphs devoted to this detail. If >3 paragraphs or includes code/diagrams → implementation level. If ≤1 paragraph → conceptual level.
+4. **Check cross-references**: If other sections of the article reference this detail by its implementation (e.g., "as we saw in the sine/cosine formulas above"), lean toward implementation level. If they reference it conceptually (e.g., "as we saw with positional encoding"), lean toward conceptual level.
+5. **Default to conceptual**: When all criteria above are inconclusive, read at the conceptual level. It's safer to over-detect misalignment than to miss it.
+6. **Flag for human review**: Mark the item as `⚠️ Granularity Ambiguous` in the detection report and present both readings with the reasoning for each.

@@ -12,7 +12,7 @@ Technical tutorials have a pervasive, almost universally unaddressed problem: **
 
 An article on the React event system devotes an entire chapter to "Event Delegation" as one of its "Three Core Mechanisms" — but event delegation is just the signal delivery pipe. The actual core, Fiber-tree traversal, gets compressed into a few lines in a flow chart. The reader walks away thinking "event delegation" is the key concept, then gets confused when debugging `stopPropagation()` behavior in production.
 
-This is not an isolated case. We tested 8 cross-domain articles (Kubernetes, PostgreSQL, Transformer, Rust, TLS, MySQL, Linux CFS, Git) and found **narrative weight misalignment in every single one**, with a misalignment rate of 75.8%. The universality of this problem is beyond doubt.
+This is not an isolated case. We tested real-world technical articles from Chinese tech blogs (cnblogs, CSDN) and international official engineering blogs (Vue.js, V8) — **narrative weight misalignment was found in the vast majority**. The universality of this problem is beyond doubt.
 
 ## Core Idea: Narrative Focus Is a Precondition
 
@@ -124,6 +124,20 @@ The agent will scan the article, identify misalignments, fix them — upgrading 
 | [`docker-orchestration/`](examples/docker-orchestration/) | Title-content mismatch: build details crowd out orchestration. Multiple Transport/Configurable items over-highlighted. |
 | [`v8-gc/`](examples/v8-gc/) | **Borderline case**: most weights correct, 2 borderline items. Shows how the skill handles "almost right" articles and its own scope boundary. |
 
+## Experiment Validation
+
+We validated the skill on real-world technical articles from both Chinese tech blogs (cnblogs, CSDN) and international official engineering blogs (Vue.js, V8), discovering five recurring misalignment patterns:
+
+| Pattern | Manifestation | Example |
+|---------|--------------|---------|
+| **Scenario bloat, mechanism compression** | Application examples crowd out architectural principles | MySQL vs Redis: 5 use-case chapters take 25% of article, while Cache Aside and other core mechanisms are compressed |
+| **Familiarity-weighting bias** | Frequently examined concepts get inflated weight | Redis persistence: fork/CoW are OS course topics, elevated to dedicated sections |
+| **Concept enumeration catalog** | All concepts listed at equal weight | Linux kernel: 6-8 concepts compressed into equal-weight lists, mixing Architectural with Configurable |
+| **Changelog flat listing** | All features get equal narrative weight regardless of importance | Vue 3.4: syntax sugar features get same section weight as architectural redesigns |
+| **Engineering deep-dive** | All concepts test as Architectural (each is an independent performance mechanism) | V8 JSON.stringify: every optimization directly affects user-observable performance |
+
+Detailed detection reports in [`experiments/`](experiments/).
+
 ## File Structure
 
 ```
@@ -145,23 +159,22 @@ narrative-focus/
 │   │   └── after.md
 │   └── v8-gc/                            # Borderline case + scope boundary
 │       └── before.md
-└── experiments/                           # 3-round validation experiments
-    ├── README.md                          #   Experiment overview
-    ├── final-evaluation.md                #   Final comprehensive evaluation
-    ├── round1-cross-domain/               #   R1: 5 synthetic articles, cross-domain robustness
-    │   ├── articles/                      #     K8s, PostgreSQL, Transformer, Rust, TLS
-    │   ├── detection-results/             #     Skill detection reports (5)
-    │   └── summary.md
-    ├── round2-controlled/                 #   R2: 3 real articles, Skill vs no-Skill control
-    │   ├── articles/                      #     MySQL, Linux CFS, Git
-    │   ├── no-skill-control-results/      #     No-Skill control (same model, no Skill input) (3)
-    │   ├── skill-detection-results/       #     Skill detection (same model + Skill input) (3)
-    │   └── summary.md
-    └── round3-correction/                 #   R3: correction pipeline verification
-        ├── corrected-articles/            #     Post-correction articles (2)
-        ├── correction-reports/            #     Correction + verification reports (2)
-        ├── re-evaluation/                 #     No-Skill control re-evaluation (2)
-        └── summary.md
+└── experiments/                           # Real-world article experiments
+    ├── articles/                          #   6 real articles (Chinese + English sources)
+    │   ├── 01-mysql-vs-redis.md           #     MySQL vs Redis (cnblogs, 2026-03)
+    │   ├── 02-redis-persistence.md        #     Redis persistence (CSDN, 2026-04)
+    │   ├── 03-linux-kernel-modules.md     #     Linux kernel modules (cnblogs, 2026-03)
+    │   ├── 04-vue-3.5-release.md          #     Vue 3.5 release (Vue.js blog, 2024-09)
+    │   ├── 05-vue-3.4-release.md          #     Vue 3.4 release (Vue.js blog, 2023-12)
+    │   └── 06-v8-json-stringify.md        #     V8 JSON.stringify (v8.dev, 2025-08)
+    ├── detection-results/                 #   Detection reports
+    │   ├── 01-mysql-vs-redis-detection.md
+    │   ├── 02-redis-persistence-detection.md
+    │   ├── 03-linux-kernel-detection.md
+    │   ├── 04-vue-3.5-detection.md
+    │   ├── 05-vue-3.4-detection.md
+    │   └── 06-v8-json-stringify-detection.md
+    └── summary.md                         #   Cross-article analysis & patterns
 ```
 
 ## License

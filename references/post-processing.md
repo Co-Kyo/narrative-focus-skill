@@ -17,15 +17,30 @@ Scan the article for all technical details presented as core concepts. Indicator
 
 Before applying the substitution test, you must determine **what proposition each core concept is actually conveying in this article's context**. The same technical detail can carry different propositions depending on context.
 
-For each core concept from Step 1, answer:
+For each core concept from Step 1, execute the following procedure:
 
-> **What is this concept actually asserting in this article? What would the reader take away as the key insight?**
+**2a. Extract the article's own words**: Find the sentence or paragraph where the article defines/explains this concept. Quote it verbatim.
+
+**2b. Distill the key insight**: From the quote, answer: "If the reader remembers only one thing about this concept, what would it be?" That one thing is the proposition.
+
+**2c. Verify against elaboration depth**: Check the proposition against `references/proposition-granularity-guide.md` decision flowchart:
+- If the article devotes a full section → proposition is at the elaborated level
+- If the article mentions and moves on → proposition is at the conceptual level
+- If unclear → default to conceptual level and flag `⚠️ Granularity Ambiguous`
+
+**2d. Record**: For each core concept, output:
+
+```
+- Concept: [name]
+- Article quote: "[exact text from article]"
+- Proposition: [distilled key insight]
+- Granularity: [conceptual / implementation / mathematical]
+- Confidence: [high / medium / low]
+```
 
 Common pitfall: substituting the literal term/implementation instead of the proposition. For example:
 - "JSX is `React.createElement()` syntax sugar" — the proposition is "JSX has no independent semantics, it's just JS function calls" (Architectural), NOT "JSX compiles to the specific function `createElement`" (Transport).
 - The distinction hinges on what the article is asserting, not what technical term appears on the surface.
-
-**Proposition granularity**: When a concept is elaborated at different depths, read the proposition at the level the article actually elaborates. If the article devotes a full section to the math, the proposition is at the math level. If it only mentions the concept in passing, read at the conceptual level. See `references/proposition-granularity-guide.md` for the decision flowchart and worked examples.
 
 ### Step 3: Apply Substitution Test to Each Proposition
 
@@ -60,6 +75,17 @@ Format:
 ```
 
 If all items are ✅, detection passes and the process terminates.
+
+### ⚠️ User Checkpoint (Mandatory)
+
+After outputting the detection report, **do not auto-proceed to correction**. Present the report and explicitly ask:
+
+> "检测完成，发现 N 个错位项。是否进入修正流程？你可以选择：
+> 1. 全部修正
+> 2. 只修正指定项（告诉我哪些）
+> 3. 仅记录，暂不修正"
+
+Wait for user response. If user chooses option 2, only correct the specified items. If option 3, terminate after detection.
 
 ## Correction Workflow
 
@@ -106,8 +132,14 @@ Execute only when detection finds ❌ items.
      - **Boundary test**: if the article says "X does Y" and official docs say "X does Z", that's a fact error → ❌. If the article says "X is the core mechanism" and official docs give X its own section but our framework classifies X as Transport, that's a framing difference → ✅ (not an error).
    - **Method**:
      a. For each modified section, extract its **core technical propositions** (the behavioral claims it makes)
-     b. Search authoritative sources (official documentation, team blog posts, MDN, RFCs) for each proposition
-     c. Compare: does the modified text's **factual claim** match what authoritative sources describe?
+     b. Search authoritative sources for each proposition, using this priority order:
+        1. **Official documentation** of the technology (e.g., react.dev, docs.python.org, MDN)
+        2. **Team/engineering blog posts** from the technology's maintainers
+        3. **RFCs or specifications** for protocol/language-level claims
+        4. **Stack Overflow answers with >50 upvotes** or verified answers as secondary confirmation
+     c. For each proposition, search strategy: `"[technology] [concept]" site:official-docs-domain` or `"[exact behavioral claim]" [technology]`
+     d. Compare: does the modified text's **factual claim** match what authoritative sources describe?
+     e. If no authoritative source is found after trying all 4 levels, mark as `⚠️ Unverified` rather than `✅ Verified`
    - **Output format**:
 
    ```
